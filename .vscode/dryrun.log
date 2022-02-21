@@ -1,0 +1,5 @@
+make --dry-run --keep-going --print-directory
+make: Entering directory '/home/gabriellv/Desenvolvimento/go/learning-go-gl'
+gcc -DPENIS="Oi" -Wall main.c -o main
+make: Leaving directory '/home/gabriellv/Desenvolvimento/go/learning-go-gl'
+ 
