@@ -38,18 +38,16 @@ func main() {
 
 	for !window.ShouldClose() {
 
-		draw(vao, window, program)
+		draw(vao, window, &program)
 	}
 }
 
-func draw(vao uint32, window *glfw.Window, program uint32) {
+func draw(vao uint32, window *glfw.Window, program *shaders.Program) {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-	gl.UseProgram(program)
-	gl.Uniform1f(
-		gl.GetUniformLocation(program, gl.Str("time\x00")),
-		float32(time.Now().UnixMilli()-start_time)/100.,
-	)
+	gl.UseProgram(program.Id)
+
+	program.SetUniform("time", float32(time.Now().UnixMilli()-start_time)/100.)
 
 	gl.BindVertexArray(vao)
 	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(triangle)/3))
@@ -78,17 +76,12 @@ func initGlfw() *glfw.Window {
 }
 
 // initOpenGL initializes OpenGL and returns an intiialized program.
-func initOpenGL() uint32 {
+func initOpenGL() shaders.Program {
 	if err := gl.Init(); err != nil {
 		panic(err)
 	}
 	version := gl.GoStr(gl.GetString(gl.VERSION))
 	log.Println("OpenGL version", version)
-
-	// vertexShader, err := shaders.CompileShader(
-	// 	shaders.ParseShader("../assets/shaders/basic.vs"),
-	// 	gl.VERTEX_SHADER,
-	// )
 
 	vertexShader := shaders.NewShader(
 		"../assets/shaders/basic.vs",
@@ -100,11 +93,7 @@ func initOpenGL() uint32 {
 		gl.FRAGMENT_SHADER,
 	)
 
-	prog := gl.CreateProgram()
-	gl.AttachShader(prog, vertexShader.Id)
-	gl.AttachShader(prog, fragmentShader.Id)
-	gl.LinkProgram(prog)
-	return prog
+	return shaders.NewProgram(fragmentShader, vertexShader)
 }
 
 // makeVao initializes and returns a vertex array from the points provided.
