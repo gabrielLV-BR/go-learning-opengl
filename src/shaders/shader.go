@@ -2,9 +2,19 @@ package shaders
 
 import (
 	"fmt"
-	"github.com/go-gl/gl/v4.1-core/gl"
+	"gl/learning/utils"
+	"os"
 	"strings"
+
+	"github.com/go-gl/gl/v4.1-core/gl"
 )
+
+func ParseShader(path string) string {
+	data, err := os.ReadFile(path)
+	utils.Check(err)
+
+	return string(data)
+}
 
 func CompileShader(source string, shaderType uint32) (uint32, error) {
 	shader := gl.CreateShader(shaderType)
