@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"gl/learning/input"
 	"gl/learning/shaders"
 	"gl/learning/utils"
 	"log"
@@ -9,6 +11,7 @@ import (
 
 	"github.com/go-gl/gl/v4.1-core/gl" // OR: github.com/go-gl/gl/v2.1/gl
 	"github.com/go-gl/glfw/v3.2/glfw"
+	"github.com/go-gl/mathgl/mgl32"
 )
 
 const (
@@ -25,35 +28,59 @@ var (
 	start_time int64 = 0.0
 )
 
-func main() {
+func init() {
 	runtime.LockOSThread()
-
-	window := initGlfw()
-	defer glfw.Terminate()
-	program := initOpenGL()
-
-	vao := makeVao(triangle)
-
-	start_time = time.Now().UnixMilli()
-
-	for !window.ShouldClose() {
-
-		draw(vao, window, &program)
-	}
 }
 
-func draw(vao uint32, window *glfw.Window, program *shaders.Program) {
-	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+func main() {
+	// Initialize GLFW and OpenGL
+	window := initGlfw()
+	program := initOpenGL()
 
-	gl.UseProgram(program.Id)
+	// Initialize necessary variables
+	start_time = time.Now().UnixMilli()
 
-	program.SetUniform("time", float32(time.Now().UnixMilli()-start_time)/100.)
+	// Setup callbacks
+	window.SetKeyCallback(input.HandleKeyInput)
 
-	gl.BindVertexArray(vao)
-	gl.DrawArrays(gl.TRIANGLES, 0, int32(len(triangle)/3))
+	//
+	vao := makeVao(triangle)
 
-	glfw.PollEvents()
-	window.SwapBuffers()
+	model := mgl32.Ident4()
+	camera := mgl32.LookAt(0., 0., 10., 0., 0., 0., 0., 1., 0.)
+	proj := mgl32.Perspective(mgl32.DegToRad(60.), width/height, 0.01, 1000.)
+
+	
+	var x float32 = 0.
+
+	input.Subscribe(func(key glfw.Key, action glfw.Action, _ glfw.ModifierKey) {
+		if key == glfw.KeyD {
+			fmt.Println("Master o f penes")
+			model = mgl32.Translate3D(x, 0., 0.)
+			x += 0.1
+		}
+	})
+
+	// Main Loop
+	for !window.ShouldClose() {
+		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+
+		gl.UseProgram(program.Id)
+
+		program.SetUniform("time", float32(time.Now().UnixMilli()-start_time)/100.)
+		program.SetUniform("u_model", model)
+		program.SetUniform("u_view", camera)
+		program.SetUniform("u_proj", proj)
+
+		gl.BindVertexArray(vao)
+		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(triangle)/3))
+
+		glfw.PollEvents()
+		window.SwapBuffers()
+	}
+
+	// Cleanup
+	glfw.Terminate()
 }
 
 // initGlfw initializes glfw and returns a Window to use.

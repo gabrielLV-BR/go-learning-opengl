@@ -2,6 +2,7 @@ package shaders
 
 import (
 	"github.com/go-gl/gl/v4.1-core/gl" // OR: github.com/go-gl/gl/v2.1/gl
+	"github.com/go-gl/mathgl/mgl32"
 )
 
 type Program struct {
@@ -34,6 +35,8 @@ func (p *Program) SetUniform(name string, value interface{}) {
 		gl.Uniform1d(location, val)
 	case int32:
 		gl.Uniform1i(location, val)
+	case mgl32.Mat4:
+		gl.UniformMatrix4fv(location, 1, false, &val[0])
 		// ...
 	}
 }
