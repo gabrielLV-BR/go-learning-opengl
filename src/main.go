@@ -85,22 +85,24 @@ func initOpenGL() uint32 {
 	version := gl.GoStr(gl.GetString(gl.VERSION))
 	log.Println("OpenGL version", version)
 
-	vertexShader, err := shaders.CompileShader(
-		shaders.ParseShader("../assets/shaders/basic.vs"),
+	// vertexShader, err := shaders.CompileShader(
+	// 	shaders.ParseShader("../assets/shaders/basic.vs"),
+	// 	gl.VERTEX_SHADER,
+	// )
+
+	vertexShader := shaders.NewShader(
+		"../assets/shaders/basic.vs",
 		gl.VERTEX_SHADER,
 	)
 
-	utils.Check(err)
-
-	fragmentShader, err := shaders.CompileShader(
-		shaders.ParseShader("../assets/shaders/basic.fs"),
+	fragmentShader := shaders.NewShader(
+		"../assets/shaders/basic.fs",
 		gl.FRAGMENT_SHADER,
 	)
-	utils.Check(err)
 
 	prog := gl.CreateProgram()
-	gl.AttachShader(prog, vertexShader)
-	gl.AttachShader(prog, fragmentShader)
+	gl.AttachShader(prog, vertexShader.Id)
+	gl.AttachShader(prog, fragmentShader.Id)
 	gl.LinkProgram(prog)
 	return prog
 }

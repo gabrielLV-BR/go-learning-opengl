@@ -9,14 +9,34 @@ import (
 	"github.com/go-gl/gl/v4.1-core/gl"
 )
 
-func ParseShader(path string) string {
+type ShaderType uint32
+
+const (
+	VERTEX   ShaderType = gl.VERTEX_SHADER
+	FRAGMENT ShaderType = gl.FRAGMENT_SHADER
+)
+
+type Shader struct {
+	Id   uint32
+	Kind ShaderType
+}
+
+func NewShader(path string, kind uint32) Shader {
+	source := readShader(path)
+	id, err := compileShader(source, kind)
+	utils.Check(err)
+
+	return Shader{Id: id, Kind: ShaderType(kind)}
+}
+
+func readShader(path string) string {
 	data, err := os.ReadFile(path)
 	utils.Check(err)
 
 	return string(data)
 }
 
-func CompileShader(source string, shaderType uint32) (uint32, error) {
+func compileShader(source string, shaderType uint32) (uint32, error) {
 	shader := gl.CreateShader(shaderType)
 
 	csources, free := gl.Strs(source)
