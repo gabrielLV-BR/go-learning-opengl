@@ -1,7 +1,7 @@
 package entities
 
 type Entity interface {
-	Create()
+	Setup()
 	Update(float32)
 	Render()
 	Destroy()

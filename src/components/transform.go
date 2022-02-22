@@ -10,6 +10,14 @@ type Transform struct {
 	Size     Vec3
 }
 
+func DefaultTransform() Transform {
+	return Transform{
+		Position: Vec3{0., 0., 0.},
+		Rotation: QuatIdent(),
+		Size:     Vec3{1., 1., 1.},
+	}
+}
+
 func (t *Transform) Move(vel Vec3) {
 	t.Position.Add(vel)
 }
